@@ -52,8 +52,8 @@
 }
 
 .widgets-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   padding: 10px;
 }
@@ -61,6 +61,7 @@
 .widget-wrapper {
   position: relative;
   transition: transform 0.3s ease, border 0.2s ease, background-color 0.2s ease;
+  width: 300px;
 }
 
 /* Only show move cursor when draggable (in edit mode) */
@@ -71,7 +72,6 @@
 .widget-color-background {
   border-radius: 8px;
   overflow: hidden;
-  height: 100%;
 }
 
 .widget-wrapper.dragging {
