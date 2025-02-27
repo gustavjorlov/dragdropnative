@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import WeatherWidget from "./widgets/WeatherWidget.tsx";
 import ClockWidget from "./widgets/ClockWidget.tsx";
 import TodoWidget from "./widgets/TodoWidget.tsx";
+import TextWidget from "./widgets/TextWidget.tsx";
 import "./Dashboard.css";
 
 // Define widget types for our array
-type WidgetType = "weather" | "clock" | "todo";
+type WidgetType = "weather" | "clock" | "todo" | "text";
 
 interface WidgetItem {
   id: string;
   type: WidgetType;
+  text?: string; // Optional text for text widgets
 }
 
 const Dashboard: React.FC = () => {
@@ -17,7 +19,12 @@ const Dashboard: React.FC = () => {
   const defaultWidgets: WidgetItem[] = [
     { id: "widget-1", type: "weather" },
     { id: "widget-2", type: "clock" },
-    { id: "widget-3", type: "todo" }
+    { id: "widget-3", type: "todo" },
+    { id: "widget-4", type: "text", text: "Widget #4 - This is a simple text widget" },
+    { id: "widget-5", type: "text", text: "Widget #5 - Drag and drop me!" },
+    { id: "widget-6", type: "text", text: "Widget #6 - Another text widget" },
+    { id: "widget-7", type: "text", text: "Widget #7 - Try moving me around" },
+    { id: "widget-8", type: "text", text: "Widget #8 - Last but not least" }
   ];
   
   // Store widgets in state array for reordering
@@ -129,10 +136,24 @@ const Dashboard: React.FC = () => {
         return <ClockWidget key={widget.id} />;
       case "todo":
         return <TodoWidget key={widget.id} />;
+      case "text":
+        return <TextWidget key={widget.id} text={widget.text || ""} />;
       default:
         return null;
     }
   };
+
+  // Pastel colors for widget backgrounds
+  const pastelColors = [
+    "#FFD6E0", // Light pink
+    "#FFEFB5", // Light yellow
+    "#C1E1C1", // Light green
+    "#C4D7ED", // Light blue
+    "#D8C3E9", // Light purple
+    "#F0E0D6", // Light peach
+    "#D1F0E0", // Light mint
+    "#F9D5E5"  // Light rose
+  ];
 
   // Determine if a widget should have space created to its left or right
   const getWidgetClasses = (widget: WidgetItem) => {
@@ -163,6 +184,17 @@ const Dashboard: React.FC = () => {
     return classes;
   };
 
+  // Get background color for a widget based on its ID
+  const getWidgetStyle = (widgetId: string) => {
+    // Extract the number from the widget ID (e.g., "widget-3" -> 3)
+    const idNumber = parseInt(widgetId.split('-')[1], 10);
+    // Use modulo to cycle through colors if we have more widgets than colors
+    const colorIndex = (idNumber - 1) % pastelColors.length;
+    return {
+      backgroundColor: pastelColors[colorIndex]
+    };
+  };
+
   return (
     <div className="dashboard">
       <h1>Dashboard</h1>
@@ -188,7 +220,9 @@ const Dashboard: React.FC = () => {
             onDrop={(e) => handleDrop(e, widget.id)}
             onDragEnd={handleDragEnd}
           >
-            {renderWidget(widget)}
+            <div className="widget-color-background" style={getWidgetStyle(widget.id)}>
+              {renderWidget(widget)}
+            </div>
           </div>
         ))}
       </div>

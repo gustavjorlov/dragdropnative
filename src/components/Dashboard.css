@@ -53,6 +53,12 @@
   transition: transform 0.3s ease, border 0.2s ease, background-color 0.2s ease;
 }
 
+.widget-color-background {
+  border-radius: 8px;
+  overflow: hidden;
+  height: 100%;
+}
+
 .widget-wrapper.dragging {
   opacity: 0.5;
   border: 2px dashed #4a90e2;
