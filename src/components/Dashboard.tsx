@@ -32,9 +32,10 @@ const Dashboard: React.FC = () => {
     localStorage.setItem('dashboardWidgets', JSON.stringify(widgets));
   }, [widgets]);
   
-  // Track the widget being dragged and the drop target
+  // Track the widget being dragged, the drop target, and drop position
   const [draggedWidget, setDraggedWidget] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const [dropPosition, setDropPosition] = useState<'left' | 'right' | null>(null);
 
   // Handle drag start
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
@@ -53,6 +54,13 @@ const Dashboard: React.FC = () => {
     // Don't set drop target if it's the same as the dragged widget
     if (id !== draggedWidget) {
       setDropTarget(id);
+      
+      // Determine if we're dropping to the left or right of the target
+      // by checking if cursor is in the left or right half of the element
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const position = x < rect.width / 2 ? 'left' : 'right';
+      setDropPosition(position);
     }
   };
   
@@ -61,6 +69,7 @@ const Dashboard: React.FC = () => {
     // We'll use a short timeout to prevent flickering when moving between elements
     setTimeout(() => {
       setDropTarget(null);
+      setDropPosition(null);
     }, 50);
   };
 
@@ -68,6 +77,7 @@ const Dashboard: React.FC = () => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, targetId: string) => {
     e.preventDefault();
     setDropTarget(null);
+    setDropPosition(null);
     
     if (draggedWidget === targetId) return;
     
@@ -80,7 +90,21 @@ const Dashboard: React.FC = () => {
     // Create a new array with reordered widgets
     const newWidgets = [...widgets];
     const [movedWidget] = newWidgets.splice(draggedIndex, 1);
-    newWidgets.splice(targetIndex, 0, movedWidget);
+    
+    // If dropping to the right and the target is after the dragged item,
+    // we need to adjust the insertion index
+    let insertIndex = targetIndex;
+    if (dropPosition === 'right') {
+      // If we're dropping to the right of the target, increment the index
+      // But if the dragged item was before the target, we need to account for the removed item
+      insertIndex = draggedIndex < targetIndex ? targetIndex : targetIndex + 1;
+    } else {
+      // If we're dropping to the left of the target and the dragged item was before the target,
+      // we need to account for the removed item
+      insertIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
+    }
+    
+    newWidgets.splice(insertIndex, 0, movedWidget);
     
     // Update state with new order
     setWidgets(newWidgets);
@@ -93,6 +117,7 @@ const Dashboard: React.FC = () => {
     e.currentTarget.classList.remove("dragging");
     setDraggedWidget(null);
     setDropTarget(null);
+    setDropPosition(null);
   };
 
   // Render the appropriate widget component based on type
@@ -107,6 +132,35 @@ const Dashboard: React.FC = () => {
       default:
         return null;
     }
+  };
+
+  // Determine if a widget should have space created to its left or right
+  const getWidgetClasses = (widget: WidgetItem) => {
+    let classes = 'widget-wrapper';
+    
+    // If this is the widget being dragged, add the dragging class
+    if (draggedWidget === widget.id) {
+      classes += ' dragging';
+    }
+    
+    // If this is the drop target, add the drop-target class and drop position
+    if (dropTarget === widget.id) {
+      classes += ` drop-target drop-${dropPosition}`;
+    }
+    
+    // If we're dragging and this isn't the dragged widget, check if we need to make space
+    if (draggedWidget && draggedWidget !== widget.id) {
+      // Only add make-space class if this widget is the drop target
+      if (dropTarget === widget.id) {
+        if (dropPosition === 'left') {
+          classes += ' make-space-left';
+        } else if (dropPosition === 'right') {
+          classes += ' make-space-right';
+        }
+      }
+    }
+    
+    return classes;
   };
 
   return (
@@ -126,7 +180,7 @@ const Dashboard: React.FC = () => {
         {widgets.map((widget) => (
           <div
             key={widget.id}
-            className={`widget-wrapper ${dropTarget === widget.id ? 'drop-target' : ''}`}
+            className={getWidgetClasses(widget)}
             draggable
             onDragStart={(e) => handleDragStart(e, widget.id)}
             onDragOver={(e) => handleDragOver(e, widget.id)}
