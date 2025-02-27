@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
+import "./Dashboard.css";
 import WeatherWidget from "./widgets/WeatherWidget.tsx";
 import ClockWidget from "./widgets/ClockWidget.tsx";
 import TodoWidget from "./widgets/TodoWidget.tsx";
 import TextWidget from "./widgets/TextWidget.tsx";
-import "./Dashboard.css";
 
 // Define widget types for our array
 type WidgetType = "weather" | "clock" | "todo" | "text";
@@ -15,6 +15,8 @@ interface WidgetItem {
 }
 
 const Dashboard: React.FC = () => {
+  // State to track if edit mode is active
+  const [editMode, setEditMode] = useState<boolean>(false);
   // Default widget configuration
   const defaultWidgets: WidgetItem[] = [
     { id: "widget-1", type: "weather" },
@@ -199,7 +201,18 @@ const Dashboard: React.FC = () => {
     <div className="dashboard">
       <h1>Dashboard</h1>
       <div className="dashboard-controls">
-        <p className="dashboard-hint">Drag and drop widgets to reorder them</p>
+        <p className="dashboard-hint">
+          {editMode 
+            ? "Drag widgets to reposition them. Widget contents are disabled in edit mode." 
+            : "Toggle edit mode to reposition widgets"}
+        </p>
+        <button 
+          className={`edit-mode-button ${editMode ? 'active' : ''}`} 
+          onClick={() => setEditMode(!editMode)}
+          title={editMode ? "Exit edit mode" : "Enter edit mode"}
+        >
+          {editMode ? "Exit Edit Mode" : "Edit Layout"}
+        </button>
         <button 
           className="reset-button" 
           onClick={() => setWidgets(defaultWidgets)}
@@ -213,14 +226,17 @@ const Dashboard: React.FC = () => {
           <div
             key={widget.id}
             className={getWidgetClasses(widget)}
-            draggable
+            draggable={editMode}
             onDragStart={(e) => handleDragStart(e, widget.id)}
             onDragOver={(e) => handleDragOver(e, widget.id)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, widget.id)}
             onDragEnd={handleDragEnd}
           >
-            <div className="widget-color-background" style={getWidgetStyle(widget.id)}>
+            <div 
+              className={`widget-color-background ${editMode ? 'edit-mode' : ''}`} 
+              style={getWidgetStyle(widget.id)}
+            >
               {renderWidget(widget)}
             </div>
           </div>

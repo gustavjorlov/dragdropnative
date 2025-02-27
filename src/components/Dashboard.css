@@ -25,7 +25,7 @@
   margin: 0 15px 0 0;
 }
 
-.reset-button {
+.edit-mode-button, .reset-button {
   background-color: #f0f0f0;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -33,11 +33,22 @@
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  margin: 0 5px;
 }
 
-.reset-button:hover {
+.edit-mode-button:hover, .reset-button:hover {
   background-color: #e0e0e0;
   border-color: #ccc;
+}
+
+.edit-mode-button.active {
+  background-color: #4a90e2;
+  color: white;
+  border-color: #3a80d2;
+}
+
+.edit-mode-button.active:hover {
+  background-color: #3a80d2;
 }
 
 .widgets-container {
@@ -48,9 +59,13 @@
 }
 
 .widget-wrapper {
-  cursor: move; /* Show move cursor */
   position: relative;
   transition: transform 0.3s ease, border 0.2s ease, background-color 0.2s ease;
+}
+
+/* Only show move cursor when draggable (in edit mode) */
+.widget-wrapper[draggable="true"] {
+  cursor: move;
 }
 
 .widget-color-background {
@@ -83,13 +98,13 @@
 }
 
 
-/* Hamburger icon to indicate draggable */
-.widget-wrapper::after {
+/* Hamburger icon to indicate draggable - only show in edit mode */
+.widget-wrapper[draggable="true"]::after {
   content: "☰";
   position: absolute;
   top: 10px;
   right: 10px;
-  color: #ccc;
+  color: #666;
   font-size: 16px;
   z-index: 10;
   transition: all 0.2s ease;
@@ -103,7 +118,17 @@
   100% { transform: rotate(0deg) scale(1.2); }
 }
 
-.widget-wrapper:hover::after {
-  color: #666;
+.widget-wrapper[draggable="true"]:hover::after {
   animation: wiggle 0.5s ease;
+}
+
+/* Disable pointer events on widget contents when in edit mode */
+.widget-color-background.edit-mode .widget {
+  pointer-events: none;
+}
+
+/* Visual indicator that widget is in edit mode */
+.widget-color-background.edit-mode {
+  outline: 2px dashed rgba(74, 144, 226, 0.5);
+  outline-offset: -2px;
 }
