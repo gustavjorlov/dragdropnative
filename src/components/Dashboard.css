@@ -6,8 +6,38 @@
 
 .dashboard h1 {
   color: #333;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   text-align: center;
+}
+
+.dashboard-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.dashboard-hint {
+  color: #666;
+  font-size: 0.9rem;
+  font-style: italic;
+  margin: 0 15px 0 0;
+}
+
+.reset-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reset-button:hover {
+  background-color: #e0e0e0;
+  border-color: #ccc;
 }
 
 .widgets-container {
@@ -15,4 +45,45 @@
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
   padding: 10px;
+}
+
+.widget-wrapper {
+  cursor: move; /* Show move cursor */
+  position: relative;
+}
+
+.widget-wrapper.dragging {
+  opacity: 0.5;
+  border: 2px dashed #4a90e2;
+}
+
+.widget-wrapper.drop-target {
+  border: 2px dashed #4a90e2;
+  background-color: rgba(74, 144, 226, 0.1);
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+.widget-wrapper::before {
+  content: "☰"; /* Hamburger icon to indicate draggable */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #ccc;
+  font-size: 16px;
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+
+/* Add a subtle animation to indicate draggability */
+@keyframes wiggle {
+  0% { transform: rotate(0deg) scale(1.2); }
+  25% { transform: rotate(3deg) scale(1.2); }
+  75% { transform: rotate(-3deg) scale(1.2); }
+  100% { transform: rotate(0deg) scale(1.2); }
+}
+
+.widget-wrapper:hover::before {
+  color: #666;
+  animation: wiggle 0.5s ease;
 }
